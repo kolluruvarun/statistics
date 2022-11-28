@@ -1,0 +1,106 @@
+---
+title: "R Markdown Assignment"
+author: "Varun Teja Kolluru"
+date: "`r Sys.Date()`"
+output:
+  word_document: default
+  html_document: default
+---
+
+### Remove the list in environment window
+```{r}
+rm(list=ls())
+```
+
+### Add the libraries which are used in the code
+```{r}
+library(rio)
+library(moments)
+```
+
+### Load the file from the directory
+```{r}
+my_data = import('test.xlsx')
+```
+
+### change the column names to lower case
+```{r}
+colnames(my_data) = tolower(make.names(colnames(my_data)))
+```
+
+### Creating a new subset for states with Washington and Georigia
+```{r}
+sub_data = subset(my_data,state=='WA'|state=='GA')
+```
+
+### Creating a seed with my U number and create a sample from subset
+```{r}
+set.seed('97')
+my_sample = sub_data[sample(1:nrow(sub_data),60),]
+attach(my_sample)
+```
+The above code is a pre processing code, which gets the data from the given file and creating a subset and using the subset data a new sample is created with seeding number. 
+
+### Below is the sample data
+```{r}
+my_sample
+```
+
+
+
+# Start of analysis
+### Structure of the data object
+```{r}
+str(my_sample)
+```
+
+### Mean Median SD skewness kurtosis
+```{r}
+mean(price)
+median(price)
+sd(price)
+skewness(price)
+kurtosis(price)
+```
+```{r echo=FALSE}
+skew <- skewness(price)
+kur = kurtosis(price)
+```
+We got skewness as `r ifelse(skew>0, "Positive", "Negative")` value, which is a `r ifelse(skew>0, "Right", "Left")` skewed graph and the kurtosis is `r ifelse(kur>3, "Above", "Below")` 3, which will be a `r ifelse(kur>3, "leptokurtic", "Platokurtic")` graph and there is a lot of standard deviation from the standard symmetric or bell shapes curve graph. 
+
+### Boxplot for age variable
+```{r}
+boxplot(age,pch=19,main="Box Plot for the Age variable")
+```
+
+Based on the above boxplot for the age variable, we can say that the deviation in the standard curve to Right side which is a Right skewness curve. This is due to the 4 Outliers( 4 Dots) after the 40 age limit in the Y axis in the graph. In detail, 25% quartile starts after ‘10’ and the 75% quartile ends at some where ‘24’ and the median is `r median(price)`. And based on this graph we can infer that most of the boats are aged in between 10 to 25. 
+
+### Qunatile for age variable
+```{r}
+quantile(age,probs = seq(0,1,0.20))
+```
+
+
+### Histogram for the length variable
+```{r}
+hist(length,col="blue",main="Histogram for Lenght varible with better look and feel",
+     xlim = c(0,150))
+```
+
+
+By viewing this histogram graph for length variable, we can say that this do not follow a symmetric shaped curve. We can say that this is a `r ifelse(skew>0, "Right", "Left")` skewed curve. And if we closely observe the graph, after the ‘100’, there is a raise in the graph and this might be a double curved graph. 
+
+### stem and leaf plot for age variable
+```{r}
+plot(density(age),lwd=3,main="Plot for age variable")
+plot(age,pch=19)
+```
+
+### Boxplot comparing prices for GA and WA state
+```{r}
+my.ga = subset(my_data,state=='GA')
+my.wa = subset(my_data,state=='WA')
+boxplot(my.ga$price,my.wa$price,pch=19,
+        main="GA state price vs WA state price",
+        col=c("red","red"),names=c("Georgia","Washington"))
+```
